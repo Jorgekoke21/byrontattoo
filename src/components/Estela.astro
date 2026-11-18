@@ -1,0 +1,40 @@
+---
+/**
+ * Transición de tinta entre secciones: una estela de humo que cruza la pantalla
+ * de izquierda a derecha mientras se hace scroll. Se superpone a las secciones
+ * vecinas (márgenes negativos) y no intercepta el puntero.
+ */
+interface Props { altura?: string; origen?: [number, number] }
+const { altura = '70svh', origen = [0.02, 0.55] } = Astro.props;
+---
+<div class="estela" data-estela data-origen={origen.join(',')} style={`--h:${altura}`} aria-hidden="true">
+  <canvas data-estela-canvas></canvas>
+  <span class="estela__aguja" data-aguja></span>
+</div>
+
+<style>
+  .estela { position: relative; height: var(--h); margin-block: calc(var(--h) * -0.35); z-index: 6; pointer-events: none; }
+  .estela canvas { position: absolute; inset: 0; width: 100%; height: 100%;
+    mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent); }
+  .estela__aguja { position: absolute; left: 0; top: 55%; width: clamp(3rem, 9vw, 9rem); height: 1px; background: linear-gradient(to right, transparent, var(--color-laton-claro)); transform-origin: left; transform: scaleX(0); box-shadow: 0 0 12px rgb(232 204 146 / .6); }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, reduceMotion } from '../scripts/motion';
+  import { Humo } from '../scripts/humo';
+  document.querySelectorAll<HTMLElement>('[data-estela]').forEach((el) => {
+    if (reduceMotion()) return;
+    const [ox, oy] = (el.dataset.origen ?? '0.02,0.55').split(',').map(Number);
+    const humo = new Humo(el.querySelector('canvas')!, { modo: 'estela', origen: [ox, oy], escala: 0.4 });
+    if (!humo.ok) return;
+    const aguja = el.querySelector<HTMLElement>('[data-aguja]')!;
+    ScrollTrigger.create({
+      trigger: el, start: 'top 95%', end: 'bottom 5%', scrub: 0.5,
+      onUpdate: (s) => {
+        const p = s.progress;
+        humo.set(Math.min(1, p * 1.25), p < 0.75 ? 1 : Math.max(0, 1 - (p - 0.75) / 0.25));
+        gsap.set(aguja, { scaleX: Math.min(1, p * 4), opacity: p < 0.6 ? 1 : 1 - (p - 0.6) / 0.4 });
+      },
+    });
+  });
+</script>

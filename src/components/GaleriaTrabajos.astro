@@ -1,0 +1,154 @@
+---
+/**
+ * Galería editorial asimétrica. Patrón de 6 posiciones que se repite, de modo que
+ * añadir trabajos en src/data/trabajos.ts mantiene la composición.
+ */
+import { Image, getImage } from 'astro:assets';
+import { trabajos, estilos, type Estilo } from '../data/trabajos';
+
+interface Props { modo?: 'seleccion' | 'completa' }
+const { modo = 'seleccion' } = Astro.props;
+const lista = modo === 'seleccion' ? trabajos.filter((t) => t.destacado).slice(0, 6) : trabajos;
+const full = await Promise.all(lista.map((t) => getImage({ src: t.img, width: 1600, format: 'webp', quality: 84 })));
+const usados = [...new Set(lista.map((t) => t.estilo))] as Estilo[];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<div class="galeria" data-galeria>
+  {modo === 'completa' && (
+    <div class="galeria__filtros contenedor" role="group" aria-label="Filtrar por estilo">
+      <button type="button" class="filtro activo" data-filtro="todo" aria-pressed="true">Todo <sup>{pad(lista.length)}</sup></button>
+      {usados.map((e) => (
+        <button type="button" class="filtro" data-filtro={e} aria-pressed="false">{estilos[e]} <sup>{pad(lista.filter((t) => t.estilo === e).length)}</sup></button>
+      ))}
+    </div>
+  )}
+
+  <ul class="galeria__rejilla contenedor" role="list">
+    {lista.map((t, i) => (
+      <li class:list={['pieza', `p${i % 6}`]} data-pieza data-estilo={t.estilo}>
+        <button type="button" class="pieza__btn" data-full={full[i].src} data-titulo={t.titulo} data-estilo-txt={estilos[t.estilo]} data-alt={t.alt} aria-label={`Ampliar: ${t.titulo}`}>
+          <span class="pieza__marco" data-marco>
+            {t.video ? (
+              <video class="pieza__media" muted loop playsinline preload="none" poster={full[i].src} data-video aria-label={t.alt}>
+                <source src={t.video} type="video/mp4" />
+              </video>
+            ) : (
+              <Image src={t.img} alt={t.alt} widths={[480, 800, 1200]} sizes="(max-width: 767px) 92vw, 42vw" class="pieza__media" data-parallax />
+            )}
+          </span>
+        </button>
+        <p class="pieza__pie">
+          <span class="pieza__num gotica">{pad(i + 1)}</span>
+          <span class="pieza__tit">{t.titulo}</span>
+          <span class="pieza__estilo versalita">{estilos[t.estilo]}{t.video && ' · vídeo'}</span>
+        </p>
+      </li>
+    ))}
+  </ul>
+
+  <dialog class="gvisor" data-gvisor aria-label="Trabajo ampliado">
+    <figure>
+      <img data-gvisor-img alt="" />
+      <figcaption><span class="etiqueta" data-gvisor-estilo></span> <span class="gotica gvisor__tit" data-gvisor-tit></span></figcaption>
+    </figure>
+    <button type="button" class="gvisor__cerrar versalita" data-gvisor-cerrar>Cerrar</button>
+  </dialog>
+</div>
+
+<style>
+  .galeria__filtros { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: clamp(2.5rem, 6vh, 4rem); }
+  .filtro { font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; padding: .7rem 1.1rem; border: 1px solid rgb(236 230 218 / .2); border-radius: 999px; color: var(--color-hueso-2); transition: all .4s var(--ease-tinta); }
+  .filtro sup { font-size: .6rem; color: var(--color-humo); margin-left: .2rem; }
+  .filtro:hover { border-color: rgb(236 230 218 / .5); color: var(--color-hueso); }
+  .filtro.activo { border-color: var(--color-laton); color: var(--color-laton-claro); }
+
+  .galeria__rejilla { list-style: none; margin: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2vw, 2rem); row-gap: clamp(3rem, 8vh, 6rem); align-items: start; }
+  .pieza { position: relative; }
+  .pieza.oculta { display: none; }
+  .p0 { grid-column: 1 / 7; --ar: 3 / 4; }
+  .p1 { grid-column: 8 / 12; --ar: 9 / 16; margin-top: 20vh; }
+  .p2 { grid-column: 2 / 6; --ar: 1 / 1; margin-top: -8vh; }
+  .p3 { grid-column: 8 / 13; --ar: 4 / 5; margin-top: 6vh; }
+  .p4 { grid-column: 1 / 6; --ar: 1 / 1; margin-top: 2vh; }
+  .p5 { grid-column: 7 / 12; --ar: 4 / 3; margin-top: 14vh; }
+
+  .pieza__btn { display: block; width: 100%; padding: 0; text-align: left; cursor: zoom-in; }
+  .pieza__marco { position: relative; display: block; aspect-ratio: var(--ar); overflow: hidden; background: var(--color-tinta-3); }
+  .pieza__media { position: absolute; left: 0; top: -6%; width: 100%; height: 112%; object-fit: cover; transition: scale 1.2s var(--ease-tinta), filter .8s; }
+  .pieza__btn:hover .pieza__media, .pieza__btn:focus-visible .pieza__media { scale: 1.05; }
+  .pieza__marco::after { content: ""; position: absolute; inset: 0; border: 1px solid transparent; transition: border-color .6s var(--ease-tinta), inset .6s var(--ease-tinta); }
+  .pieza__btn:hover .pieza__marco::after { border-color: rgb(232 204 146 / .7); inset: .75rem; }
+
+  .pieza__pie { display: flex; align-items: baseline; gap: 1rem; margin-top: 1rem; }
+  .pieza__num { font-size: 1.8rem; color: var(--color-laton); }
+  .pieza__tit { font-size: 1rem; }
+  .pieza__estilo { margin-left: auto; color: var(--color-humo); }
+
+  @media (max-width: 767px) {
+    .galeria__rejilla { row-gap: 3rem; }
+    .p0, .p1, .p2, .p3, .p4, .p5 { grid-column: 1 / -1; margin-top: 0; }
+    .p1 { grid-column: 3 / -1; --ar: 3 / 4; }
+    .p2 { grid-column: 1 / 10; }
+    .p3 { grid-column: 4 / -1; }
+    .p4 { grid-column: 1 / 11; }
+  }
+
+  .gvisor { width: 100vw; height: 100svh; max-width: none; max-height: none; margin: 0; border: 0; padding: 0; background: rgb(11 10 9 / .97); color: var(--color-hueso); }
+  .gvisor[open] { display: grid; place-items: center; }
+  .gvisor::backdrop { background: transparent; }
+  .gvisor figure { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin: 0; }
+  .gvisor img { max-height: 82svh; max-width: 92vw; object-fit: contain; }
+  .gvisor__tit { font-size: 2rem; }
+  .gvisor__cerrar { position: absolute; top: 1.5rem; right: var(--gutter); }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, reduceMotion, getLenis } from '../scripts/motion';
+  document.querySelectorAll<HTMLElement>('[data-galeria]').forEach((root) => {
+    const piezas = [...root.querySelectorAll<HTMLElement>('[data-pieza]')];
+    const rm = reduceMotion();
+
+    // Entrada: la foto se descubre de abajo arriba; parallax interior suave
+    if (!rm) piezas.forEach((p) => {
+      const marco = p.querySelector<HTMLElement>('[data-marco]')!;
+      const media = marco.querySelector<HTMLElement>('.pieza__media')!;
+      gsap.fromTo(marco, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: p, start: 'top 88%', once: true } });
+      gsap.fromTo(media, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: p, start: 'top bottom', end: 'bottom top', scrub: true } });
+    });
+
+    // Vídeos: solo se reproducen en pantalla
+    root.querySelectorAll<HTMLVideoElement>('[data-video]').forEach((v) => {
+      new IntersectionObserver(([e]) => { if (e.isIntersecting && !rm) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }, { threshold: 0.25 }).observe(v);
+    });
+
+    // Filtros
+    const filtros = [...root.querySelectorAll<HTMLButtonElement>('[data-filtro]')];
+    filtros.forEach((f) => f.addEventListener('click', () => {
+      const val = f.dataset.filtro!;
+      filtros.forEach((b) => { const on = b === f; b.classList.toggle('activo', on); b.setAttribute('aria-pressed', String(on)); });
+      const visibles = piezas.filter((p) => val === 'todo' || p.dataset.estilo === val);
+      gsap.to(piezas, { opacity: 0, y: 20, duration: rm ? 0 : 0.3, ease: 'power2.in', onComplete: () => {
+        piezas.forEach((p) => { p.classList.add('oculta'); p.className = p.className.replace(/\bp\d\b/g, '').trim(); });
+        visibles.forEach((p, i) => { p.classList.remove('oculta'); p.classList.add(`p${i % 6}`); });
+        ScrollTrigger.refresh();
+        gsap.fromTo(visibles, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: rm ? 0 : 0.8, ease: 'expo.out', stagger: 0.06 });
+      } });
+    }));
+
+    // Visor
+    const visor = root.querySelector<HTMLDialogElement>('[data-gvisor]')!;
+    const vimg = visor.querySelector<HTMLImageElement>('[data-gvisor-img]')!;
+    let origen: HTMLElement | null = null;
+    root.querySelectorAll<HTMLButtonElement>('.pieza__btn').forEach((b) => b.addEventListener('click', () => {
+      origen = b;
+      vimg.src = b.dataset.full!; vimg.alt = b.dataset.alt ?? '';
+      visor.querySelector('[data-gvisor-tit]')!.textContent = b.dataset.titulo ?? '';
+      visor.querySelector('[data-gvisor-estilo]')!.textContent = b.dataset.estiloTxt ?? '';
+      visor.showModal(); getLenis()?.stop();
+      if (!rm) gsap.fromTo(visor.querySelector('figure'), { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.7, ease: 'expo.out' });
+    }));
+    visor.querySelector('[data-gvisor-cerrar]')!.addEventListener('click', () => visor.close());
+    visor.addEventListener('click', (e) => { if (e.target === visor) visor.close(); });
+    visor.addEventListener('close', () => { getLenis()?.start(); origen?.focus({ preventScroll: true }); });
+  });
+</script>

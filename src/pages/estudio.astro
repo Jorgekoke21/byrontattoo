@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import CartasEstudio from '../components/CartasEstudio.astro';
+import Proceso from '../components/Proceso.astro';
+import CitaCTA from '../components/CitaCTA.astro';
+import { site } from '../data/site';
+import byron from '../assets/img/byron.jpg';
+import panoramica from '../assets/img/estudio-puesto.jpg';
+import espera from '../assets/img/estudio-espera.jpg';
+---
+<Base title="El estudio y Byron" description="Byron es el tatuador de B Ink Tattoo, estudio en la calle Doctor Teijeiro de Monforte de Lemos. Diseños desde cero en blackwork, realismo, fineline y color." image={panoramica}>
+  <section class="artista contenedor" aria-labelledby="artista-titulo">
+    <div class="artista__retrato" data-sube>
+      <span class="artista__aro" aria-hidden="true"></span>
+      <Image src={byron} alt="Retrato en blanco y negro de Byron con los brazos cruzados" widths={[360, 560]} sizes="(max-width: 767px) 70vw, 30vw" class="mono" loading="eager" />
+    </div>
+    <div class="artista__texto">
+      <p class="etiqueta" data-sube>Tatuador</p>
+      <h1 id="artista-titulo" class="artista__nombre gotica" data-sube><span class="linea"><span>{site.artista.nombre}</span></span></h1>
+      <p class="artista__lead" data-sube>Detrás de cada pieza de B Ink Tattoo está Byron. Escucha la idea, la dibuja desde cero y la lleva a la piel.</p>
+      <dl class="artista__ficha" data-sube>
+        <div><dt class="versalita">Técnicas</dt><dd>{site.tecnicas.join(' · ')}</dd></div>
+        <div><dt class="versalita">Estudio</dt><dd>{site.direccion.calle}, {site.direccion.ciudad}</dd></div>
+        <div><dt class="versalita">Instagram</dt><dd><a class="trazo" href={site.instagram.url} target="_blank" rel="noopener">{site.instagram.usuario}</a></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <CartasEstudio titulo="Dentro" eyebrow="El estudio" />
+
+  <section class="lugar" aria-labelledby="lugar-titulo">
+    <figure class="lugar__panoramica" data-sube>
+      <Image src={panoramica} alt="Puesto de trabajo del estudio: camilla, aro de luz y carro de herramientas" widths={[800, 1280, 1500]} sizes="100vw" class="mono" />
+    </figure>
+    <div class="lugar__grid contenedor">
+      <div>
+        <p class="etiqueta" data-sube>Dónde estamos</p>
+        <h2 id="lugar-titulo" class="lugar__titulo gotica" data-sube><span class="linea"><span>En el corazón</span></span><span class="linea"><span>de Monforte</span></span></h2>
+      </div>
+      <div class="lugar__datos" data-sube>
+        <address class="not-italic">{site.direccion.calle}<br />{site.direccion.cp} {site.direccion.ciudad}, {site.direccion.provincia}</address>
+        <a href={site.mapa} target="_blank" rel="noopener" class="boton">Cómo llegar</a>
+      </div>
+      <figure class="lugar__espera" data-sube>
+        <Image src={espera} alt="Zona de espera con sofá de cuero y lámpara de pie" widths={[480, 800]} sizes="(max-width: 767px) 92vw, 30vw" />
+      </figure>
+    </div>
+  </section>
+
+  <Proceso />
+  <CitaCTA />
+</Base>
+
+<style>
+  .artista { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2rem 1.5rem; align-items: center; padding-top: calc(var(--header-h) + clamp(3rem, 10vh, 6rem)); padding-bottom: clamp(4rem, 10vh, 7rem); }
+  .artista__retrato { grid-column: 1 / 6; position: relative; aspect-ratio: 1; }
+  .artista__retrato :global(img) { position: absolute; inset: 7%; width: 86%; height: 86%; object-fit: cover; border-radius: 50%; }
+  .artista__aro { position: absolute; inset: 2%; border-radius: 50%; border: 1.5px solid var(--color-laton); box-shadow: 0 0 40px rgb(232 204 146 / .35), inset 0 0 40px rgb(232 204 146 / .2); }
+  .artista__texto { grid-column: 7 / 13; display: flex; flex-direction: column; gap: 1.4rem; }
+  .artista__nombre { font-size: clamp(6rem, 16vw, 16rem); }
+  .artista__lead { font-size: clamp(1.25rem, 2vw, 1.7rem); line-height: 1.3; max-width: 32rem; }
+  .artista__ficha { display: grid; gap: 1rem; border-top: 1px solid rgb(236 230 218 / .14); padding-top: 1.5rem; }
+  .artista__ficha div { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; }
+  .artista__ficha dt { color: var(--color-humo); padding-top: .2rem; }
+  .artista__ficha dd { color: var(--color-hueso-2); }
+
+  .lugar { padding-block: clamp(6rem, 14vh, 10rem); }
+  .lugar__panoramica { margin: 0; height: 70svh; overflow: hidden; }
+  .lugar__panoramica :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; }
+  .lugar__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2rem 1.5rem; margin-top: -10svh; position: relative; }
+  .lugar__grid > div:first-child { grid-column: 1 / 7; padding-top: 14svh; }
+  .lugar__titulo { font-size: clamp(3.6rem, 7.5vw, 8rem); margin-top: 1rem; }
+  .lugar__datos { grid-column: 1 / 6; display: flex; flex-direction: column; align-items: flex-start; gap: 1.4rem; color: var(--color-hueso-2); line-height: 1.6; }
+  .lugar__espera { grid-column: 8 / 12; grid-row: 1 / span 2; margin: 0; aspect-ratio: 3 / 4; overflow: hidden; box-shadow: 0 40px 100px rgb(0 0 0 / .7); }
+  .lugar__espera :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 767px) {
+    .artista__retrato { grid-column: 2 / 12; }
+    .artista__texto, .lugar__grid > div:first-child, .lugar__datos { grid-column: 1 / -1; }
+    .lugar__panoramica { height: 46svh; }
+    .lugar__grid > div:first-child { padding-top: 12svh; }
+    .lugar__espera { grid-column: 3 / -1; grid-row: auto; }
+  }
+</style>

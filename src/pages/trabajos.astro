@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import CabeceraPagina from '../components/CabeceraPagina.astro';
+import GaleriaTrabajos from '../components/GaleriaTrabajos.astro';
+import CitaCTA from '../components/CitaCTA.astro';
+import { site } from '../data/site';
+---
+<Base title="Trabajos" description="Tatuajes realizados por Byron en B Ink Tattoo, Monforte de Lemos: black & grey, color y lettering.">
+  <CabeceraPagina eyebrow="Portfolio" titulo={['Trabajos']} intro="Piezas hechas en el estudio. Toca cualquiera para verla en grande." />
+  <GaleriaTrabajos modo="completa" />
+  <section class="mas contenedor">
+    <p class="etiqueta" data-sube>Más trabajo</p>
+    <p class="mas__txt" data-sube>El día a día del estudio, en Instagram.</p>
+    <a href={site.instagram.url} target="_blank" rel="noopener" class="boton" data-sube>{site.instagram.usuario}</a>
+  </section>
+  <CitaCTA />
+</Base>
+<style>
+  .mas { display: flex; flex-direction: column; align-items: flex-start; gap: 1.2rem; padding-block: clamp(6rem, 14vh, 9rem) 0; border-top: 1px solid rgb(236 230 218 / .1); margin-top: clamp(5rem, 12vh, 8rem); }
+  .mas__txt { font-size: clamp(1.6rem, 3vw, 2.6rem); letter-spacing: -0.015em; }
+</style>

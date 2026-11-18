@@ -1,0 +1,42 @@
+---
+import { u } from '../data/site';
+import Base from '../layouts/Base.astro';
+import HeroAro from '../components/HeroAro.astro';
+import Manifiesto from '../components/Manifiesto.astro';
+import Estela from '../components/Estela.astro';
+import RevelaTinta from '../components/RevelaTinta.astro';
+import GaleriaTrabajos from '../components/GaleriaTrabajos.astro';
+import CartasEstudio from '../components/CartasEstudio.astro';
+import Proceso from '../components/Proceso.astro';
+import CitaCTA from '../components/CitaCTA.astro';
+import boceto from '../assets/img/poseidon-boceto.jpg';
+import poseidon from '../assets/img/poseidon.jpg';
+---
+<Base title="B Ink Tattoo · Estudio de tatuaje en Monforte de Lemos" description="Estudio de tatuaje en el centro de Monforte de Lemos. Diseños dibujados desde cero en blackwork, realismo, fineline y color. Pide tu cita por correo o Instagram.">
+  <HeroAro />
+  <Manifiesto />
+  <Estela />
+  <RevelaTinta antes={boceto} despues={poseidon} alt="Media manga en black & grey con Poseidón, su tridente y el Coliseo, tatuada por Byron" pie="Media manga · Black & grey" />
+
+  <section class="seleccion" aria-labelledby="sel-titulo">
+    <header class="seleccion__cab contenedor">
+      <p class="etiqueta" data-sube>Trabajos</p>
+      <h2 id="sel-titulo" class="seleccion__titulo gotica" data-sube><span class="linea"><span>La tinta</span></span><span class="linea"><span>habla sola</span></span></h2>
+      <a href={u('/trabajos')} class="boton seleccion__ver" data-sube>Ver todos los trabajos</a>
+    </header>
+    <GaleriaTrabajos modo="seleccion" />
+  </section>
+
+  <CartasEstudio />
+  <Proceso />
+  <CitaCTA />
+</Base>
+
+<style>
+  .seleccion { padding-block: clamp(6rem, 14vh, 10rem) clamp(2rem, 6vh, 4rem); }
+  .seleccion__cab { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: end; gap: 1.5rem; margin-bottom: clamp(3rem, 9vh, 6rem); }
+  .seleccion__cab .etiqueta { grid-column: 1 / -1; }
+  .seleccion__titulo { grid-column: 1 / 9; font-size: clamp(4rem, 10vw, 11rem); }
+  .seleccion__ver { grid-column: 10 / 13; justify-self: end; }
+  @media (max-width: 767px) { .seleccion__titulo, .seleccion__ver { grid-column: 1 / -1; justify-self: start; } }
+</style>

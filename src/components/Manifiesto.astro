@@ -1,0 +1,93 @@
+---
+/**
+ * Manifiesto: marquesinas góticas que se desplazan con el scroll detrás de una
+ * ventana vertical (referencia «Saints»), con el texto del estudio debajo.
+ */
+import { Image } from 'astro:assets';
+import espejo from '../assets/img/sesion-espejo.jpg';
+import { site } from '../data/site';
+
+const filas = [
+  { palabras: ['Blackwork', 'Realismo', 'Fineline', 'Color'], dir: -1, contorno: false },
+  { palabras: ['Desde cero', 'Hecho a mano', 'Para ti'], dir: 1, contorno: true },
+  { palabras: ['Monforte', 'de Lemos', 'B Ink Tattoo'], dir: -1, contorno: false },
+];
+---
+<section class="mani" data-mani aria-labelledby="mani-titulo">
+  <div class="mani__escena">
+    <div class="mani__filas" aria-hidden="true">
+      {filas.map((f) => (
+        <div class="mani__fila" data-fila data-dir={f.dir}>
+          <div class:list={['mani__pista gotica', f.contorno && 'contorno']}>
+            {[...f.palabras, ...f.palabras, ...f.palabras].map((p) => <span>{p}<i>✦</i></span>)}
+          </div>
+        </div>
+      ))}
+    </div>
+    <figure class="mani__ventana" data-ventana>
+      <Image src={espejo} alt="Byron tatuando, reflejado en el espejo del estudio" widths={[420, 640, 900]} sizes="(max-width: 767px) 62vw, 26vw" class="mani__img mono" data-ventana-img />
+    </figure>
+  </div>
+
+  <div class="mani__texto contenedor">
+    <h2 id="mani-titulo" class="etiqueta" data-sube>El estudio</h2>
+    <p class="mani__lead" data-sube>
+      En B Ink Tattoo cada diseño empieza de cero. Escuchamos tu idea, la dibujamos para ti y la llevamos a la piel con calma, limpieza y atención al detalle.
+    </p>
+    <dl class="mani__datos" data-sube>
+      <div><dt class="versalita">Tatuador</dt><dd>{site.artista.nombre}</dd></div>
+      <div><dt class="versalita">Técnicas</dt><dd>{site.tecnicas.join(' · ')}</dd></div>
+      <div><dt class="versalita">Dónde</dt><dd>{site.direccion.calle}, {site.direccion.ciudad}</dd></div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .mani { position: relative; padding-block: clamp(4rem, 10vh, 7rem) clamp(5rem, 12vh, 9rem); overflow: hidden; }
+  .mani__escena { position: relative; display: grid; place-items: center; min-height: min(92svh, 64rem); }
+  .mani__filas { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: .02em; font-size: clamp(4.5rem, 11vw, 12rem); }
+  .mani__fila { white-space: nowrap; line-height: .95; }
+  .mani__pista { display: inline-flex; gap: .35em; will-change: transform; color: var(--color-hueso); }
+  .mani__pista span { display: inline-flex; align-items: center; gap: .35em; }
+  .mani__pista i { font-style: normal; font-family: var(--font-sans); font-size: .18em; color: var(--color-laton); }
+  .mani__pista.contorno { -webkit-text-stroke: 1.2px rgb(236 230 218 / .5); }
+  .mani__ventana { position: relative; z-index: 2; width: clamp(15rem, 26vw, 26rem); aspect-ratio: 940 / 1600; overflow: hidden; margin: 0;
+    box-shadow: 0 50px 120px rgb(0 0 0 / .8); }
+  .mani__img { width: 100%; height: 118%; object-fit: cover; }
+
+  .mani__texto { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2rem 1.5rem; margin-top: clamp(3rem, 8vh, 6rem); }
+  .mani__texto > h2 { grid-column: 1 / 4; padding-top: .55rem; }
+  .mani__lead { grid-column: 4 / 11; font-size: clamp(1.4rem, 2.6vw, 2.5rem); line-height: 1.22; letter-spacing: -0.015em; font-weight: 400; text-wrap: balance; }
+  .mani__datos { grid-column: 4 / 13; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; border-top: 1px solid rgb(236 230 218 / .14); padding-top: 1.5rem; margin-top: 1rem; }
+  .mani__datos dt { color: var(--color-humo); margin-bottom: .5rem; }
+  .mani__datos dd { color: var(--color-hueso-2); font-size: .95rem; }
+
+  @media (max-width: 767px) {
+    .mani__escena { min-height: 82svh; }
+    .mani__filas { font-size: clamp(3.6rem, 19vw, 6rem); }
+    .mani__ventana { width: 62vw; }
+    .mani__texto > h2, .mani__lead, .mani__datos { grid-column: 1 / -1; }
+    .mani__datos { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  import { gsap, reduceMotion } from '../scripts/motion';
+  document.querySelectorAll<HTMLElement>('[data-mani]').forEach((root) => {
+    if (reduceMotion()) return;
+    root.querySelectorAll<HTMLElement>('[data-fila]').forEach((fila, i) => {
+      const dir = Number(fila.dataset.dir);
+      const pista = fila.firstElementChild as HTMLElement;
+      gsap.fromTo(pista, { xPercent: dir < 0 ? -2 : -30 }, {
+        xPercent: dir < 0 ? -30 : -2, ease: 'none',
+        scrollTrigger: { trigger: root, start: 'top bottom', end: 'bottom top', scrub: 0.4 + i * 0.15 },
+      });
+    });
+    const ventana = root.querySelector<HTMLElement>('[data-ventana]')!;
+    const img = root.querySelector<HTMLElement>('[data-ventana-img]')!;
+    gsap.fromTo(ventana, { clipPath: 'inset(18% 12% 18% 12%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'power2.out',
+      scrollTrigger: { trigger: ventana, start: 'top 90%', end: 'center 55%', scrub: 0.6 } });
+    gsap.fromTo(img, { yPercent: -12 }, { yPercent: 0, ease: 'none',
+      scrollTrigger: { trigger: ventana, start: 'top bottom', end: 'bottom top', scrub: true } });
+  });
+</script>

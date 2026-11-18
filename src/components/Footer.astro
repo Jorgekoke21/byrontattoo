@@ -1,0 +1,47 @@
+---
+import { site, nav, mailtoCita, u } from '../data/site';
+const year = new Date().getFullYear();
+---
+<footer class="pie relative overflow-hidden border-t border-hueso/10 pt-24 pb-10">
+  <div class="contenedor grid gap-16 md:grid-cols-12">
+    <div class="md:col-span-5">
+      <img src={u('/marca/logo-blanco.svg')} alt={site.nombreLargo} width="120" height="190" class="h-40 w-auto opacity-90" loading="lazy" />
+    </div>
+    <div class="grid gap-10 sm:grid-cols-3 md:col-span-7">
+      <div>
+        <p class="etiqueta mb-4">Estudio</p>
+        <address class="not-italic leading-relaxed text-hueso-2">
+          {site.direccion.calle}<br />{site.direccion.cp} {site.direccion.ciudad}<br />{site.direccion.provincia}
+        </address>
+        <a href={site.mapa} target="_blank" rel="noopener" class="trazo mt-3 inline-block text-sm text-hueso">Cómo llegar</a>
+      </div>
+      <div>
+        <p class="etiqueta mb-4">Contacto</p>
+        <ul class="space-y-2 text-hueso-2">
+          <li><a class="trazo hover:text-hueso" href={mailtoCita()}>{site.email}</a></li>
+          <li><a class="trazo hover:text-hueso" href={site.instagram.url} target="_blank" rel="noopener">{site.instagram.usuario}</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="etiqueta mb-4">Web</p>
+        <ul class="space-y-2 text-hueso-2">
+          <li><a class="trazo hover:text-hueso" href={u('/')}>Inicio</a></li>
+          {nav.map((n) => <li><a class="trazo hover:text-hueso" href={n.href}>{n.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="pie__marca gotica contorno pointer-events-none select-none" aria-hidden="true">B Ink Tattoo</p>
+  <div class="contenedor mt-10 flex flex-col gap-3 text-xs text-humo sm:flex-row sm:items-center sm:justify-between">
+    <p>© {year} {site.nombreLargo} · {site.direccion.ciudad}</p>
+    <ul class="flex flex-wrap gap-x-6 gap-y-2">
+      <li><a class="trazo" href={u('/aviso-legal')}>Aviso legal</a></li>
+      <li><a class="trazo" href={u('/privacidad')}>Privacidad</a></li>
+      <li><a class="trazo" href={u('/cookies')}>Cookies</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .pie__marca { font-size: clamp(5rem, 19vw, 20rem); white-space: nowrap; margin-top: 4rem; line-height: .8; text-align: center; -webkit-text-stroke-color: rgb(236 230 218 / .14); }
+</style>

@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+import CabeceraPagina from '../components/CabeceraPagina.astro';
+import { site, mailtoCita } from '../data/site';
+---
+<Base title="Pide tu cita" description="Solicita tu cita en B Ink Tattoo, Monforte de Lemos. Cuéntanos tu idea por correo o Instagram.">
+  <CabeceraPagina eyebrow="Cita" titulo={['Pide tu', 'cita']} intro="Por ahora gestionamos las citas por correo e Instagram. Rellena lo que sepas: al enviar se abrirá tu correo con el mensaje preparado." />
+
+  <section class="cita-p contenedor">
+    <form class="form" data-form novalidate>
+      <div class="campo">
+        <label for="f-nombre" class="versalita">Nombre</label>
+        <input id="f-nombre" name="nombre" autocomplete="name" required />
+      </div>
+      <div class="campo campo--ancho">
+        <label for="f-idea" class="versalita">Tu idea</label>
+        <textarea id="f-idea" name="idea" rows="4" required placeholder="Qué quieres tatuarte y qué significa para ti"></textarea>
+      </div>
+      <div class="campo">
+        <label for="f-zona" class="versalita">Zona del cuerpo</label>
+        <input id="f-zona" name="zona" placeholder="Antebrazo, hombro, espalda…" />
+      </div>
+      <div class="campo">
+        <label for="f-tam" class="versalita">Tamaño aproximado</label>
+        <input id="f-tam" name="tamano" placeholder="En centímetros" />
+      </div>
+      <fieldset class="campo campo--ancho">
+        <legend class="versalita">Acabado</legend>
+        <div class="opciones">
+          {['Negro y grises', 'Color', 'Aún no lo sé'].map((o, i) => (
+            <label class="opcion"><input type="radio" name="acabado" value={o} checked={i === 2} /><span>{o}</span></label>
+          ))}
+        </div>
+      </fieldset>
+      <p class="form__nota campo--ancho">Si tienes imágenes de referencia, adjúntalas en el correo que se abrirá.</p>
+      <p class="form__error campo--ancho" data-error role="alert" hidden>Cuéntanos al menos tu nombre y tu idea.</p>
+      <div class="campo--ancho form__acciones">
+        <button type="submit" class="boton boton--laton">Preparar correo</button>
+        <a href={site.instagram.url} target="_blank" rel="noopener" class="trazo versalita">O escríbenos por Instagram</a>
+      </div>
+    </form>
+
+    <aside class="cita-p__datos">
+      <div><p class="etiqueta">Correo</p><a class="trazo" href={mailtoCita()}>{site.email}</a></div>
+      <div><p class="etiqueta">Instagram</p><a class="trazo" href={site.instagram.url} target="_blank" rel="noopener">{site.instagram.usuario}</a></div>
+      <div><p class="etiqueta">Estudio</p><address class="not-italic">{site.direccion.calle}<br />{site.direccion.cp} {site.direccion.ciudad}, {site.direccion.provincia}</address><a class="trazo mt-2 inline-block" href={site.mapa} target="_blank" rel="noopener">Cómo llegar</a></div>
+    </aside>
+  </section>
+</Base>
+
+<style>
+  .cita-p { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3rem 1.5rem; padding-bottom: clamp(6rem, 14vh, 10rem); }
+  .form { grid-column: 1 / 8; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem 1.5rem; }
+  .campo { display: flex; flex-direction: column; gap: .7rem; border: 0; padding: 0; margin: 0; min-width: 0; }
+  .campo--ancho { grid-column: 1 / -1; }
+  .campo label, .campo legend { color: var(--color-humo); }
+  .campo input:not([type=radio]), .campo textarea { background: transparent; border: 0; border-bottom: 1px solid rgb(236 230 218 / .25); padding: .7rem 0; color: var(--color-hueso); font-size: 1.1rem; transition: border-color .4s; resize: vertical; }
+  .campo input::placeholder, .campo textarea::placeholder { color: rgb(138 133 125 / .7); }
+  .campo input:focus, .campo textarea:focus { outline: none; border-color: var(--color-laton); }
+  .opciones { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .opcion input { position: absolute; opacity: 0; }
+  .opcion span { display: inline-block; padding: .7rem 1.1rem; border: 1px solid rgb(236 230 218 / .2); border-radius: 999px; font-size: .85rem; color: var(--color-hueso-2); cursor: pointer; transition: all .4s var(--ease-tinta); }
+  .opcion input:checked + span { border-color: var(--color-laton); color: var(--color-laton-claro); }
+  .opcion input:focus-visible + span { outline: 1px solid var(--color-laton-claro); outline-offset: 3px; }
+  .form__nota { color: var(--color-humo); font-size: .9rem; }
+  .form__error { color: var(--color-laton-claro); font-size: .9rem; }
+  .form__acciones { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+  .cita-p__datos { grid-column: 9 / 13; display: flex; flex-direction: column; gap: 2rem; color: var(--color-hueso-2); line-height: 1.6; border-left: 1px solid rgb(236 230 218 / .12); padding-left: 2rem; align-self: start; }
+  .cita-p__datos .etiqueta { margin-bottom: .5rem; }
+  @media (max-width: 767px) {
+    .form, .cita-p__datos { grid-column: 1 / -1; }
+    .form { grid-template-columns: 1fr; }
+    .cita-p__datos { border-left: 0; padding-left: 0; border-top: 1px solid rgb(236 230 218 / .12); padding-top: 2rem; }
+  }
+</style>
+
+<script>
+  import { mailtoCita } from '../data/site';
+  const form = document.querySelector<HTMLFormElement>('[data-form]')!;
+  const err = form.querySelector<HTMLElement>('[data-error]')!;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const d = new FormData(form);
+    const nombre = String(d.get('nombre') ?? '').trim();
+    const idea = String(d.get('idea') ?? '').trim();
+    if (!nombre || !idea) { err.hidden = false; (nombre ? form.idea : form.nombre).focus(); return; }
+    err.hidden = true;
+    const cuerpo = `Hola Byron,\n\nMe llamo ${nombre} y me gustaría hacerme un tatuaje.\n\nIdea: ${idea}\nZona del cuerpo: ${d.get('zona') || '—'}\nTamaño aproximado: ${d.get('tamano') || '—'}\nAcabado: ${d.get('acabado')}\n\n(Adjunto referencias si las tengo.)\n`;
+    window.location.href = mailtoCita(cuerpo);
+  });
+</script>

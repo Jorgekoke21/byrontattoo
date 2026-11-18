@@ -1,0 +1,23 @@
+---
+interface Props { eyebrow: string; titulo: [string, string?]; intro?: string }
+const { eyebrow, titulo, intro } = Astro.props;
+---
+<header class="cab contenedor">
+  <span class="cab__aro" aria-hidden="true"></span>
+  <p class="etiqueta" data-sube>{eyebrow}</p>
+  <h1 class="cab__titulo gotica" data-sube>
+    <span class="linea"><span>{titulo[0]}</span></span>
+    {titulo[1] && <span class="linea cab__l2"><span>{titulo[1]}</span></span>}
+  </h1>
+  {intro && <p class="cab__intro" data-sube>{intro}</p>}
+  <slot />
+</header>
+
+<style>
+  .cab { position: relative; padding-top: calc(var(--header-h) + clamp(4rem, 14vh, 9rem)); padding-bottom: clamp(3rem, 8vh, 5rem); display: flex; flex-direction: column; gap: 1.4rem; overflow: hidden; }
+  .cab__aro { position: absolute; right: -14vw; top: -18vw; width: 52vw; aspect-ratio: 1; border-radius: 50%; border: 1px solid rgb(194 160 106 / .45); box-shadow: 0 0 80px rgb(194 160 106 / .14), inset 0 0 80px rgb(194 160 106 / .08); pointer-events: none; }
+  .cab__titulo { font-size: clamp(4.6rem, 13vw, 14rem); }
+  .cab__l2 { padding-left: 12vw; }
+  .cab__intro { max-width: 34rem; color: var(--color-hueso-2); font-size: 1.1rem; line-height: 1.6; }
+  @media (max-width: 767px) { .cab__aro { width: 90vw; right: -40vw; top: -30vw; } .cab__l2 { padding-left: 0; } }
+</style>

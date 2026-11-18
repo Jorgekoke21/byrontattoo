@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+interface Props { titulo: string }
+const { titulo } = Astro.props;
+---
+<Base title={titulo} description={`${titulo} de ${site.nombreLargo}.`} noindex>
+  <section class="legal contenedor">
+    <p class="etiqueta">Documento legal</p>
+    <h1 class="gotica legal__t">{titulo}</h1>
+    <div class="legal__aviso" role="note">
+      <p class="versalita">En preparación</p>
+      <p>Este texto se publicará cuando el estudio facilite los datos del titular. Mientras tanto, para cualquier consulta escribe a <a class="trazo" href={`mailto:${site.email}`}>{site.email}</a>.</p>
+    </div>
+  </section>
+</Base>
+<style>
+  .legal { padding-top: calc(var(--header-h) + 8rem); padding-bottom: 8rem; max-width: 52rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .legal__t { font-size: clamp(3.4rem, 8vw, 7rem); }
+  .legal__aviso { border: 1px solid rgb(194 160 106 / .5); padding: 1.5rem; display: flex; flex-direction: column; gap: .7rem; color: var(--color-hueso-2); line-height: 1.6; }
+  .legal__aviso .versalita { color: var(--color-laton-claro); }
+</style>

@@ -1,0 +1,315 @@
+---
+import { u } from '../data/site';
+/**
+ * «Recorre la pieza»: revelado interactivo con pincel.
+ *
+ * Capa base  → `antes`   (hoy: boceto generado a partir de la foto real por detección de trazos).
+ * Capa tinta → `despues` (la fotografía real del tatuaje).
+ * El componente funciona igual con un par real antes/después alineado: basta con pasar
+ * las dos imágenes con las mismas proporciones.
+ */
+import { getImage } from 'astro:assets';
+
+interface Props {
+  antes: ImageMetadata;
+  despues: ImageMetadata;
+  alt: string;
+  etiquetaAntes?: string;
+  etiquetaDespues?: string;
+  titulo?: string;
+  eyebrow?: string;
+  texto?: string;
+  pie?: string;
+}
+const {
+  antes, despues, alt,
+  etiquetaAntes = 'Boceto', etiquetaDespues = 'Tinta',
+  titulo = 'Recorre|la pieza', eyebrow = 'Del boceto a la piel',
+  texto = 'Pasa el cursor —o el dedo— por el boceto y deja que aparezca la tinta.',
+  pie,
+} = Astro.props;
+
+const W = 1100;
+const imgA = await getImage({ src: antes, width: W, format: 'webp', quality: 82 });
+const imgB = await getImage({ src: despues, width: W, format: 'webp', quality: 84 });
+const ratio = despues.width / despues.height;
+---
+<section class="revela" data-revela aria-labelledby="revela-titulo">
+  <div class="revela__losa" aria-hidden="true">
+    <img src={u('/marca/logo-blanco.svg')} alt="" class="revela__grabado" loading="lazy" />
+  </div>
+
+  <div class="revela__grid contenedor">
+    <header class="revela__texto">
+      <p class="etiqueta" data-sube>{eyebrow}</p>
+      <h2 id="revela-titulo" class="revela__titulo gotica" data-sube>
+        {titulo.split('|').map((w) => <span class="linea"><span>{w}</span></span>)}
+      </h2>
+      <p class="revela__desc" data-sube>{texto}</p>
+      {pie && <p class="revela__pie versalita" data-sube>{pie}</p>}
+
+      <div class="revela__controles" data-sube>
+        <div class="revela__estado versalita" aria-live="polite">
+          <span data-lbl-a class="on">{etiquetaAntes}</span>
+          <span class="revela__barra"><span data-barra></span></span>
+          <span data-lbl-b>{etiquetaDespues}</span>
+        </div>
+        <div class="revela__botones">
+          <button type="button" class="boton boton--laton" data-completo aria-pressed="false">Ver pieza completa</button>
+          <button type="button" class="revela__pincel versalita" data-pincel aria-pressed="false">Modo pincel</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="revela__escenario" data-escenario style={`--ratio:${ratio}`}>
+      <img class="revela__capa revela__antes" src={imgA.src} alt="" width={imgA.attributes.width} height={imgA.attributes.height} loading="lazy" decoding="async" aria-hidden="true" />
+      <canvas class="revela__capa" data-lienzo aria-hidden="true"></canvas>
+      <img class="revela__capa revela__despues" data-despues src={imgB.src} alt={alt} width={imgB.attributes.width} height={imgB.attributes.height} loading="lazy" decoding="async" />
+      <span class="revela__cortina" data-cortina aria-hidden="true"></span>
+      <span class="revela__cursor" data-cursor aria-hidden="true"></span>
+      <span class="revela__marco" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .revela { position: relative; padding-block: clamp(5rem, 12vh, 9rem); overflow: hidden;
+    background: radial-gradient(90% 70% at 70% 40%, #1b1815 0%, var(--color-tinta) 70%); }
+  /* Losa de pizarra con la marca grabada (guiño a la referencia) */
+  .revela__losa { position: absolute; inset: auto -10% -18% 20%; height: 62%; transform: perspective(900px) rotateX(58deg) rotateZ(-6deg); transform-origin: 50% 100%;
+    background: radial-gradient(120% 100% at 50% 0%, #2a2621, #12100e 70%); border-radius: 4px; opacity: .8;
+    box-shadow: 0 -40px 120px rgb(0 0 0 / .6) inset; }
+  .revela__losa::before { content: ""; position: absolute; inset: 0; opacity: .5; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='5'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+  .revela__grabado { position: absolute; right: 12%; top: 8%; height: 70%; width: auto; opacity: .1; filter: drop-shadow(-1px -1px 0 rgb(0 0 0 / .9)) drop-shadow(1px 1px 0 rgb(255 255 255 / .25)); }
+
+  .revela__grid { position: relative; display: grid; gap: 3rem; align-items: center; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .revela__texto { display: flex; flex-direction: column; gap: 1.5rem; max-width: 30rem; }
+  .revela__titulo { font-size: clamp(4rem, 9vw, 10rem); }
+  .revela__desc { color: var(--color-hueso-2); font-size: 1.05rem; line-height: 1.6; max-width: 24rem; }
+  .revela__pie { color: var(--color-humo); }
+  .revela__controles { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem; }
+  .revela__estado { display: flex; align-items: center; gap: 1rem; color: var(--color-humo); }
+  .revela__estado .on { color: var(--color-laton-claro); }
+  .revela__barra { position: relative; flex: 0 0 7rem; height: 1px; background: rgb(236 230 218 / .2); }
+  .revela__barra > span { position: absolute; inset: 0; background: var(--color-laton); transform-origin: left; transform: scaleX(0); transition: transform .5s var(--ease-tinta); }
+  .revela__botones { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+  .revela__pincel { display: none; color: var(--color-hueso-2); border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+  .revela__pincel[aria-pressed="true"] { color: var(--color-laton-claro); }
+
+  .revela__escenario { position: relative; justify-self: end; height: min(86svh, 980px); aspect-ratio: var(--ratio); max-width: 100%;
+    cursor: none; touch-action: pan-y; user-select: none; -webkit-user-select: none; border-radius: 2px; overflow: hidden;
+    box-shadow: 0 40px 120px rgb(0 0 0 / .7); }
+  .revela__capa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .revela__despues { clip-path: inset(0 100% 0 0); }
+  .revela__antes { filter: brightness(1.35) contrast(1.05); }
+  .revela__cortina { position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: var(--color-laton-claro); box-shadow: 0 0 18px 2px rgb(232 204 146 / .7); opacity: 0; pointer-events: none; }
+  .revela__marco { position: absolute; inset: 0; pointer-events: none; border: 1px solid rgb(236 230 218 / .12); }
+  .revela__cursor { position: absolute; left: 0; top: 0; width: 46px; height: 46px; margin: -23px 0 0 -23px; pointer-events: none; opacity: 0; transition: opacity .3s, width .4s var(--ease-tinta), height .4s var(--ease-tinta), margin .4s var(--ease-tinta); }
+  .revela__cursor::before, .revela__cursor::after { content: ""; position: absolute; background: var(--color-hueso); left: 50%; top: 50%; }
+  .revela__cursor::before { width: 22px; height: 1px; translate: -50% -50%; }
+  .revela__cursor::after { width: 1px; height: 22px; translate: -50% -50%; }
+  .revela__escenario.pintando .revela__cursor { width: 64px; height: 64px; margin: -32px 0 0 -32px; }
+  .revela__escenario:hover .revela__cursor { opacity: 1; }
+
+  @media (max-width: 899px) {
+    .revela__grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .revela__escenario { justify-self: stretch; height: auto; width: 100%; cursor: auto; }
+    .revela__escenario[data-modo="pincel"] { touch-action: none; }
+    .revela__pincel { display: inline-block; }
+    .revela__cursor { display: none; }
+    .revela__losa { inset: auto -40% -10% -20%; height: 40%; }
+  }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, reduceMotion } from '../scripts/motion';
+
+  document.querySelectorAll<HTMLElement>('[data-revela]').forEach((root) => {
+    const esc = root.querySelector<HTMLElement>('[data-escenario]')!;
+    const cv = root.querySelector<HTMLCanvasElement>('[data-lienzo]')!;
+    const imgB = root.querySelector<HTMLImageElement>('[data-despues]')!;
+    const cursor = root.querySelector<HTMLElement>('[data-cursor]')!;
+    const cortina = root.querySelector<HTMLElement>('[data-cortina]')!;
+    const btnCompleto = root.querySelector<HTMLButtonElement>('[data-completo]')!;
+    const btnPincel = root.querySelector<HTMLButtonElement>('[data-pincel]')!;
+    const barra = root.querySelector<HTMLElement>('[data-barra]')!;
+    const lblA = root.querySelector<HTMLElement>('[data-lbl-a]')!;
+    const lblB = root.querySelector<HTMLElement>('[data-lbl-b]')!;
+    const ctx = cv.getContext('2d')!;
+    const mask = document.createElement('canvas');
+    const mctx = mask.getContext('2d')!;
+    const small = document.createElement('canvas'); small.width = 24; small.height = 32;
+    const sctx = small.getContext('2d', { willReadFrequently: true })!;
+    const brush = document.createElement('canvas');
+
+    let W = 0, H = 0, DPR = 1, R = 60;
+    let raf = 0, ultimo = 0, completo = false, ready = false;
+    let prev: { x: number; y: number } | null = null;
+
+    // Pincel con borde de tinta: degradado radial + salpicaduras de ruido
+    function makeBrush() {
+      const s = Math.ceil(R * 2);
+      brush.width = brush.height = s;
+      const b = brush.getContext('2d')!;
+      const g = b.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+      g.addColorStop(0, 'rgba(0,0,0,0.55)');
+      g.addColorStop(0.45, 'rgba(0,0,0,0.38)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      b.fillStyle = g; b.fillRect(0, 0, s, s);
+      b.globalCompositeOperation = 'destination-out';
+      for (let i = 0; i < 260; i++) {
+        const a = Math.random() * Math.PI * 2, r = (0.35 + Math.random() * 0.65) * s / 2;
+        b.fillStyle = `rgba(0,0,0,${Math.random() * 0.5})`;
+        b.beginPath(); b.arc(s / 2 + Math.cos(a) * r, s / 2 + Math.sin(a) * r, Math.random() * s * 0.05, 0, 7); b.fill();
+      }
+    }
+
+    function resize() {
+      const r = esc.getBoundingClientRect();
+      DPR = Math.min(devicePixelRatio || 1, 1.75);
+      W = Math.round(r.width * DPR); H = Math.round(r.height * DPR);
+      cv.width = mask.width = W; cv.height = mask.height = H;
+      R = Math.max(40, Math.min(W, H) * 0.11);
+      makeBrush();
+    }
+
+    function stamp(x: number, y: number) {
+      const from = prev ?? { x, y };
+      const dist = Math.hypot(x - from.x, y - from.y);
+      const step = Math.max(1, R * 0.22);
+      const n = Math.ceil(dist / step);
+      for (let i = 0; i <= n; i++) {
+        const t = n ? i / n : 1;
+        const px = from.x + (x - from.x) * t, py = from.y + (y - from.y) * t;
+        const k = 0.85 + Math.random() * 0.3;
+        mctx.drawImage(brush, px - R * k, py - R * k, R * 2 * k, R * 2 * k);
+      }
+      prev = { x, y };
+      ultimo = performance.now();
+      if (!raf) raf = requestAnimationFrame(frame);
+    }
+
+    let cobertura = 0, muestreo = 0;
+    function frame(now: number) {
+      raf = 0;
+      const activo = now - ultimo < 4500;
+      // La tinta "se seca" y desaparece poco a poco detrás del cursor
+      mctx.globalCompositeOperation = 'destination-out';
+      mctx.fillStyle = 'rgba(0,0,0,0.022)';
+      mctx.fillRect(0, 0, W, H);
+      mctx.globalCompositeOperation = 'source-over';
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(mask, 0, 0);
+      ctx.globalCompositeOperation = 'source-in';
+      if (ready) ctx.drawImage(imgB, 0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+
+      // Medición barata de cuánto se ha revelado (rejilla 24×32)
+      if (now - muestreo > 240) {
+        muestreo = now;
+        sctx.clearRect(0, 0, 24, 32);
+        sctx.drawImage(mask, 0, 0, 24, 32);
+        const d = sctx.getImageData(0, 0, 24, 32).data;
+        let s = 0;
+        for (let i = 3; i < d.length; i += 4) s += d[i] > 40 ? 1 : 0;
+        cobertura = s / (24 * 32);
+        setEstado(Math.min(1, cobertura * 2.2));
+      }
+      if (activo) raf = requestAnimationFrame(frame);
+      else { mctx.clearRect(0, 0, W, H); ctx.clearRect(0, 0, W, H); setEstado(0); }
+    }
+
+    function setEstado(p: number) {
+      if (completo) return;
+      barra.style.transform = `scaleX(${p})`;
+      lblA.classList.toggle('on', p < 0.5);
+      lblB.classList.toggle('on', p >= 0.5);
+    }
+
+    function local(e: PointerEvent) {
+      const r = esc.getBoundingClientRect();
+      return { x: (e.clientX - r.left) * DPR, y: (e.clientY - r.top) * DPR, cx: e.clientX - r.left, cy: e.clientY - r.top };
+    }
+
+    const qx = gsap.quickTo(cursor, 'x', { duration: 0.25, ease: 'power3' });
+    const qy = gsap.quickTo(cursor, 'y', { duration: 0.25, ease: 'power3' });
+
+    esc.addEventListener('pointerenter', () => { prev = null; });
+    esc.addEventListener('pointermove', (e) => {
+      const p = local(e);
+      qx(p.cx); qy(p.cy);
+      if (completo) return;
+      // En táctil solo se pinta si el dedo está apoyado
+      if (e.pointerType !== 'mouse' && e.buttons === 0 && e.pressure === 0) return;
+      esc.classList.add('pintando');
+      stamp(p.x, p.y);
+    });
+    esc.addEventListener('pointerdown', (e) => { prev = null; const p = local(e); if (!completo) stamp(p.x, p.y); });
+    esc.addEventListener('pointerleave', () => { prev = null; esc.classList.remove('pintando'); });
+    esc.addEventListener('pointerup', () => { prev = null; });
+
+    btnPincel.addEventListener('click', () => {
+      const on = esc.dataset.modo !== 'pincel';
+      esc.dataset.modo = on ? 'pincel' : '';
+      btnPincel.setAttribute('aria-pressed', String(on));
+      btnPincel.textContent = on ? 'Pincel activo · toca y arrastra' : 'Modo pincel';
+    });
+
+    // Cortinilla: muestra la pieza entera
+    btnCompleto.addEventListener('click', () => {
+      completo = !completo;
+      btnCompleto.setAttribute('aria-pressed', String(completo));
+      btnCompleto.textContent = completo ? 'Volver al boceto' : 'Ver pieza completa';
+      const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } });
+      if (completo) {
+        barra.style.transform = 'scaleX(1)'; lblA.classList.remove('on'); lblB.classList.add('on');
+        gsap.set(cortina, { left: 0, opacity: 1 });
+        tl.to(imgB, { clipPath: 'inset(0 0% 0 0)', duration: reduceMotion() ? 0 : 1.3 })
+          .to(cortina, { left: '100%', duration: reduceMotion() ? 0 : 1.3 }, 0)
+          .to(cortina, { opacity: 0, duration: 0.3 });
+      } else {
+        gsap.set(cortina, { left: '100%', opacity: 1 });
+        tl.to(imgB, { clipPath: 'inset(0 100% 0 0)', duration: reduceMotion() ? 0 : 1.1 })
+          .to(cortina, { left: 0, duration: reduceMotion() ? 0 : 1.1 }, 0)
+          .to(cortina, { opacity: 0, duration: 0.3 });
+        setEstado(0);
+      }
+    });
+
+    // Pista automática: un trazo fantasma enseña la interacción al entrar en pantalla
+    function pista() {
+      if (reduceMotion() || completo) return;
+      const pts = [[0.42, 0.18], [0.66, 0.28], [0.5, 0.44], [0.7, 0.58], [0.52, 0.74]];
+      const o = { t: 0 };
+      prev = null;
+      gsap.to(o, {
+        t: 1, duration: 2.2, ease: 'power1.inOut',
+        onUpdate: () => {
+          const f = o.t * (pts.length - 1), i = Math.min(pts.length - 2, Math.floor(f)), k = f - i;
+          const x = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * k, y = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * k;
+          stamp(x * W, y * H);
+        },
+        onComplete: () => { prev = null; },
+      });
+    }
+
+    const init = () => {
+      resize(); ready = true;
+      ScrollTrigger.create({ trigger: esc, start: 'top 65%', once: true, onEnter: pista });
+    };
+    // Carga diferida propia: la capa de tinta está oculta (clip-path), así que el navegador
+    // no la descargaría por sí solo. La pedimos cuando la sección se acerca.
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      imgB.loading = 'eager';
+      if (imgB.complete && imgB.naturalWidth) init();
+      else imgB.addEventListener('load', init, { once: true });
+    }, { rootMargin: '800px 0px' });
+    io.observe(root);
+    new ResizeObserver(() => ready && resize()).observe(esc);
+  });
+</script>

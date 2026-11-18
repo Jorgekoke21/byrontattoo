@@ -1,0 +1,19 @@
+---
+import { u } from '../data/site';
+import Base from '../layouts/Base.astro';
+---
+<Base title="Página no encontrada" description="Esta página no existe." noindex>
+  <section class="nf contenedor">
+    <span class="nf__aro" aria-hidden="true"></span>
+    <p class="etiqueta">Error 404</p>
+    <h1 class="gotica nf__t">Aquí no hay tinta</h1>
+    <p class="nf__p">La página que buscas no existe o ha cambiado de sitio.</p>
+    <a href={u('/')} class="boton boton--laton">Volver al inicio</a>
+  </section>
+</Base>
+<style>
+  .nf { position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 1.5rem; overflow: hidden; }
+  .nf__aro { position: absolute; right: -10vw; top: 50%; translate: 0 -50%; width: min(70vw, 80svh); aspect-ratio: 1; border-radius: 50%; border: 1.5px solid rgb(194 160 106 / .6); box-shadow: 0 0 80px rgb(232 204 146 / .2), inset 0 0 80px rgb(232 204 146 / .1); }
+  .nf__t { font-size: clamp(4rem, 11vw, 11rem); max-width: 12ch; position: relative; }
+  .nf__p { color: var(--color-hueso-2); position: relative; }
+</style>
