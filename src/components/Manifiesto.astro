@@ -3,7 +3,7 @@
  * Manifiesto: marquesinas góticas que se desplazan con el scroll detrás de una
  * ventana vertical (referencia «Saints»), con el texto del estudio debajo.
  */
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import espejo from '../assets/img/sesion-espejo.jpg';
 import { site } from '../data/site';
 
@@ -25,7 +25,7 @@ const filas = [
       ))}
     </div>
     <figure class="mani__ventana" data-ventana>
-      <Image src={espejo} alt="Byron tatuando, reflejado en el espejo del estudio" widths={[420, 640, 900]} sizes="(max-width: 767px) 62vw, 26vw" class="mani__img mono" data-ventana-img />
+      <Picture src={espejo} formats={['avif', 'webp']} fallbackFormat="webp" alt="Byron tatuando, reflejado en el espejo del estudio" widths={[420, 640, 900]} sizes="(max-width: 767px) 62vw, 26vw" class="mani__img mono" data-ventana-img />
     </figure>
   </div>
 

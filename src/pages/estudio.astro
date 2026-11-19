@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import CartasEstudio from '../components/CartasEstudio.astro';
 import Proceso from '../components/Proceso.astro';
 import CitaCTA from '../components/CitaCTA.astro';
@@ -13,7 +13,7 @@ import espera from '../assets/img/estudio-espera.jpg';
   <section class="artista contenedor" aria-labelledby="artista-titulo">
     <div class="artista__retrato" data-sube>
       <span class="artista__aro" aria-hidden="true"></span>
-      <Image src={byron} alt="Retrato en blanco y negro de Byron con los brazos cruzados" widths={[360, 560]} sizes="(max-width: 767px) 70vw, 30vw" class="mono" loading="eager" />
+      <Picture src={byron} formats={['avif', 'webp']} fallbackFormat="webp" alt="Retrato en blanco y negro de Byron con los brazos cruzados" widths={[360, 560]} sizes="(max-width: 767px) 70vw, 30vw" class="mono" loading="eager" />
     </div>
     <div class="artista__texto">
       <p class="etiqueta" data-sube>Tatuador</p>
@@ -31,7 +31,7 @@ import espera from '../assets/img/estudio-espera.jpg';
 
   <section class="lugar" aria-labelledby="lugar-titulo">
     <figure class="lugar__panoramica" data-sube>
-      <Image src={panoramica} alt="Puesto de trabajo del estudio: camilla, aro de luz y carro de herramientas" widths={[800, 1280, 1500]} sizes="100vw" class="mono" />
+      <Picture src={panoramica} formats={['avif', 'webp']} fallbackFormat="webp" alt="Puesto de trabajo del estudio: camilla, aro de luz y carro de herramientas" widths={[800, 1280, 1500]} sizes="100vw" class="mono" />
     </figure>
     <div class="lugar__grid contenedor">
       <div>
@@ -43,7 +43,7 @@ import espera from '../assets/img/estudio-espera.jpg';
         <a href={site.mapa} target="_blank" rel="noopener" class="boton">Cómo llegar</a>
       </div>
       <figure class="lugar__espera" data-sube>
-        <Image src={espera} alt="Zona de espera con sofá de cuero y lámpara de pie" widths={[480, 800]} sizes="(max-width: 767px) 92vw, 30vw" />
+        <Picture src={espera} formats={['avif', 'webp']} fallbackFormat="webp" alt="Zona de espera con sofá de cuero y lámpara de pie" widths={[480, 800]} sizes="(max-width: 767px) 92vw, 30vw" />
       </figure>
     </div>
   </section>

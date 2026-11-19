@@ -9,12 +9,13 @@ import { mailtoCita, u } from '../data/site';
 ---
 <section class="hero" data-hero aria-labelledby="hero-titulo">
   <div class="hero__escena" data-escena>
-    <div class="hero__atmos" aria-hidden="true" style={`background-image:url(${u('/media/hero-aro.jpg')})`}></div>
+    <div class="hero__atmos" aria-hidden="true" style={`background-image:url(${u('/media/hero-aro.webp')})`}></div>
     <p class="hero__fondo gotica contorno" aria-hidden="true" data-fondo>B Ink</p>
 
     <div class="hero__centro" data-centro>
       <div class="hero__portal" data-portal>
-        <video data-video muted playsinline loop preload="auto" poster={u('/media/hero-aro.jpg')} aria-hidden="true" tabindex="-1">
+        <video data-video muted playsinline loop preload="auto" poster={u('/media/hero-aro.webp')} aria-hidden="true" tabindex="-1">
+          <source src={u('/media/hero-aro.av1.mp4')} type="video/mp4; codecs=av01.0.05M.08" />
           <source src={u('/media/hero-aro.mp4')} type="video/mp4" />
         </video>
         <div class="hero__vineta"></div>

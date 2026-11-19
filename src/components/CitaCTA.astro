@@ -11,7 +11,8 @@ const [t1, t2] = titulo;
 <section class="cita" data-cita aria-labelledby="cita-titulo">
   <div class="cita__escena contenedor">
     <div class="cita__ventana" data-cita-ventana>
-      <video muted loop playsinline preload="none" poster={u('/media/pieza-color.jpg')} data-cita-video aria-hidden="true" tabindex="-1">
+      <video muted loop playsinline preload="none" poster={u('/media/pieza-color.webp')} data-cita-video aria-hidden="true" tabindex="-1">
+        <source src={u('/media/pieza-color.av1.mp4')} type="video/mp4; codecs=av01.0.05M.08" />
         <source src={u('/media/pieza-color.mp4')} type="video/mp4" />
       </video>
       <span class="cita__aro" aria-hidden="true"></span>

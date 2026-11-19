@@ -72,12 +72,15 @@ VIDEOS = [
     # salida, origen, inicio, duración, filtro
     ("hero-aro", V / "VID-20261118-WA0012.mp4", 0, 10.8, GRIS),
     ("pieza-color", V / "VID-20261118-WA0011.mp4", 0.3, 10.2, "eq=contrast=1.05:saturation=1.08"),
-    ("estudio-recorrido", V / "VID-20261118-WA0013.mp4", 0, 9.5, GRIS),
 ]
 for nombre, src, ini, dur, vf in VIDEOS:
     ff("-ss", str(ini), "-t", str(dur), "-i", str(src), "-an", "-vf", f"{vf},format=yuv420p",
        "-c:v", "libx264", "-preset", "slow", "-crf", "25", "-movflags", "+faststart", str(MEDIA / f"{nombre}.mp4"))
-    ff("-ss", "0.2", "-i", str(MEDIA / f"{nombre}.mp4"), "-frames:v", "1", "-q:v", "3", str(MEDIA / f"{nombre}.jpg"))
+    # Versión AV1 (≈ la mitad de peso); el HTML la ofrece primero y deja H.264 de respaldo
+    ff("-i", str(MEDIA / f"{nombre}.mp4"), "-an", "-c:v", "libsvtav1", "-preset", "5", "-crf", "38", "-g", "120",
+       "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(MEDIA / f"{nombre}.av1.mp4"))
+    # Póster en WebP
+    ff("-ss", "0.2", "-i", str(MEDIA / f"{nombre}.mp4"), "-frames:v", "1", "-c:v", "libwebp", "-quality", "78", str(MEDIA / f"{nombre}.webp"))
 
 # Fotogramas fijos para las cartas y la galería
 for nombre, src, t, vf in [

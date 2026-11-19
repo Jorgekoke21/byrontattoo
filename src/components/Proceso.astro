@@ -3,7 +3,7 @@
  * «Cómo trabajamos»: lista editorial con letras (referencia web1), sin tarjetas.
  * Contenido basado en los valores de la web antigua, reescrito sin añadir promesas nuevas.
  */
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import material from '../assets/img/material.jpg';
 
 const pasos = [
@@ -16,7 +16,7 @@ const pasos = [
 <section class="proceso contenedor" aria-labelledby="proceso-titulo">
   <div class="proceso__foto">
     <figure class="proceso__fig" data-sube>
-      <Image src={material} alt="Mesa de trabajo protegida con film: tintas, guantes y máquina" widths={[480, 760, 1000]} sizes="(max-width: 767px) 92vw, 34vw" class="mono" />
+      <Picture src={material} formats={['avif', 'webp']} fallbackFormat="webp" alt="Mesa de trabajo protegida con film: tintas, guantes y máquina" widths={[480, 760, 1000]} sizes="(max-width: 767px) 92vw, 34vw" class="mono" />
     </figure>
   </div>
   <div class="proceso__lista">

@@ -3,7 +3,7 @@
  * Galería editorial asimétrica. Patrón de 6 posiciones que se repite, de modo que
  * añadir trabajos en src/data/trabajos.ts mantiene la composición.
  */
-import { Image, getImage } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
 import { trabajos, estilos, type Estilo } from '../data/trabajos';
 
 interface Props { modo?: 'seleccion' | 'completa' }
@@ -30,10 +30,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
           <span class="pieza__marco" data-marco>
             {t.video ? (
               <video class="pieza__media" muted loop playsinline preload="none" poster={full[i].src} data-video aria-label={t.alt}>
+                <source src={t.video.replace(/\.mp4$/, '.av1.mp4')} type="video/mp4; codecs=av01.0.05M.08" />
                 <source src={t.video} type="video/mp4" />
               </video>
             ) : (
-              <Image src={t.img} alt={t.alt} widths={[480, 800, 1200]} sizes="(max-width: 767px) 92vw, 42vw" class="pieza__media" data-parallax />
+              <Picture src={t.img} alt={t.alt} formats={['avif', 'webp']} fallbackFormat="webp" widths={[480, 800, 1200]} sizes="(max-width: 767px) 92vw, 42vw" class="pieza__media" data-parallax />
             )}
           </span>
         </button>

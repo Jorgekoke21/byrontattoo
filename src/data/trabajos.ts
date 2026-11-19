@@ -20,7 +20,7 @@ export interface Trabajo {
   estilo: Estilo;
   img: ImageMetadata;
   alt: string;
-  video?: string; // vídeo corto opcional (público, sin audio)
+  video?: string; // vídeo corto opcional (público, sin audio). Si existe <nombre>.av1.mp4 al lado, se usa primero
   destacado?: boolean;
 }
 
