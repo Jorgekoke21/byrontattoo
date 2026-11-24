@@ -116,6 +116,14 @@ import { mailtoCita, u } from '../data/site';
     .hero__lateral { display: none; }
   }
 
+  /* ── Modo ligero: aro sin filtros de desenfoque, halo estático con box-shadow, sin humo ── */
+  :global(.lite) .aro__glow, :global(.lite) .aro__chispa, :global(.lite) .hero__atmos, :global(.lite) .hero__humo { display: none; }
+  :global(.lite) .hero__centro::before { content: ""; position: absolute; inset: -2.4%; border-radius: 50%; pointer-events: none;
+    box-shadow: 0 0 28px 2px rgb(232 204 146 / .38), inset 0 0 22px rgb(232 204 146 / .22); }
+  :global(.lite) .hero__titulo { text-shadow: none; }
+  :global(.lite) .hero__destello { mix-blend-mode: normal; background: #f3e3bd; }
+  :global(.lite) .aro__linea { stroke-width: 3; }
+
   /* Estado inicial antes de la animación de entrada (solo si hay JS y movimiento) */
   :global(.js-motion) .hero__portal { clip-path: circle(0% at 50% 50%); }
   :global(.js-motion) .aro__linea, :global(.js-motion) .aro__glow { stroke-dasharray: 1; stroke-dashoffset: 1; }
@@ -123,7 +131,7 @@ import { mailtoCita, u } from '../data/site';
 </style>
 
 <script>
-  import { gsap, ScrollTrigger, reduceMotion, splitChars } from '../scripts/motion';
+  import { gsap, ScrollTrigger, reduceMotion, splitChars, lite } from '../scripts/motion';
   import { Humo } from '../scripts/humo';
 
   const hero = document.querySelector<HTMLElement>('[data-hero]');
@@ -168,6 +176,8 @@ import { mailtoCita, u } from '../data/site';
         .from(pie, { y: 24, duration: 1.2 }, '<')
         .to(chispa, { opacity: 0.9, duration: 0.6 }, '<');
 
+      const ligero = lite();
+      if (!ligero) {
       // Chispa de luz que recorre el aro de forma continua
       gsap.fromTo(chispa, { strokeDashoffset: 0 }, { strokeDashoffset: -1, duration: 7, ease: 'none', repeat: -1 });
       // Respiración suave del halo
@@ -184,6 +194,17 @@ import { mailtoCita, u } from '../data/site';
         });
       }
 
+      }
+
+      if (ligero) {
+        // Móvil: sin pin ni WebGL. Salida con transformaciones y opacidad (solo compositor).
+        gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true,
+          onLeave: () => video.pause(), onEnterBack: play } })
+          .fromTo(l1, { xPercent: 0 }, { xPercent: -25 }, 0)
+          .fromTo(l2, { xPercent: 0 }, { xPercent: 25 }, 0)
+          .fromTo(centro, { scale: 1, opacity: 1 }, { scale: 0.82, opacity: 0.25 }, 0)
+          .fromTo(pie, { opacity: 1 }, { opacity: 0, duration: 0.4 }, 0);
+      } else {
       // ── Salida con scroll: el aro nos atraviesa y el estudio se disuelve en tinta ──
       const humo = new Humo(canvas, { modo: 'portal', origen: [0.5, 0.47], escala: 0.45 });
       const st = gsap.timeline({
@@ -209,6 +230,7 @@ import { mailtoCita, u } from '../data/site';
         .to(portal, { opacity: 0, duration: 0.15 }, 0.7)
         .to(escena, { backgroundColor: '#0b0a09', duration: 0.4 }, 0.3)
         .to({}, { duration: 0.15 });
+      }
     }
 
     // Ahorro: pausar el vídeo si la pestaña no está visible

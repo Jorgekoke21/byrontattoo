@@ -75,6 +75,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .pieza__btn { display: block; width: 100%; padding: 0; text-align: left; cursor: zoom-in; }
   .pieza__marco { position: relative; display: block; aspect-ratio: var(--ar); overflow: hidden; background: var(--color-tinta-3); }
+  :global(.lite) .pieza__media { top: 0; height: 100%; }
   .pieza__media { position: absolute; left: 0; top: -6%; width: 100%; height: 112%; object-fit: cover; transition: scale 1.2s var(--ease-tinta), filter .8s; }
   .pieza__btn:hover .pieza__media, .pieza__btn:focus-visible .pieza__media { scale: 1.05; }
   .pieza__marco::after { content: ""; position: absolute; inset: 0; border: 1px solid transparent; transition: border-color .6s var(--ease-tinta), inset .6s var(--ease-tinta); }
@@ -104,7 +105,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </style>
 
 <script>
-  import { gsap, ScrollTrigger, reduceMotion, getLenis } from '../scripts/motion';
+  import { gsap, ScrollTrigger, reduceMotion, getLenis, lite } from '../scripts/motion';
   document.querySelectorAll<HTMLElement>('[data-galeria]').forEach((root) => {
     const piezas = [...root.querySelectorAll<HTMLElement>('[data-pieza]')];
     const rm = reduceMotion();
@@ -114,7 +115,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const marco = p.querySelector<HTMLElement>('[data-marco]')!;
       const media = marco.querySelector<HTMLElement>('.pieza__media')!;
       gsap.fromTo(marco, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: p, start: 'top 88%', once: true } });
-      gsap.fromTo(media, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: p, start: 'top bottom', end: 'bottom top', scrub: true } });
+      if (!lite()) gsap.fromTo(media, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: p, start: 'top bottom', end: 'bottom top', scrub: true } });
     });
 
     // Vídeos: solo se reproducen en pantalla

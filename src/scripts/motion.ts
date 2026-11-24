@@ -6,12 +6,18 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const isTouch = () => window.matchMedia('(hover: none), (pointer: coarse)').matches;
+/** Modo ligero (móvil/táctil): sin pin, sin WebGL, sin filtros animados. Lo fija un script en <head>. */
+export const lite = () => document.documentElement.classList.contains('lite');
+
+// Evita recálculos cuando la barra de direcciones del móvil aparece/desaparece
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 let lenis: Lenis | null = null;
 
 /** Scroll suave (Lenis) sincronizado con el ticker de GSAP. Una sola instancia. */
 export function initScroll() {
-  if (lenis || reduceMotion()) return lenis;
+  // En táctil el scroll nativo es más fluido que cualquier suavizado
+  if (lenis || reduceMotion() || lite()) return lenis;
   lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), touchMultiplier: 1.2 });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis?.raf(time * 1000));

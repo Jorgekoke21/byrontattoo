@@ -106,6 +106,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* Baraja táctil */
   .cartas.baraja .cartas__mesa { --cw: min(68vw, 330px); height: calc(var(--cw) * 1.62); perspective: 1200px; margin-top: 2rem; }
   .cartas.baraja .carta { bottom: auto; top: 0; transform-origin: 50% 80%; touch-action: pan-y; }
+  .cartas.baraja .carta, .cartas.baraja .carta * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  /* En móvil la foto de fondo ya viene oscura: sin filtros ni máscaras que repintar */
+  :global(.lite) .cartas__fondo { filter: none; opacity: .3; -webkit-mask-image: none; mask-image: none; }
+  :global(.lite) .carta__btn { box-shadow: 0 10px 24px rgb(0 0 0 / .5); }
   .cartas.baraja .cartas__leyenda { justify-content: flex-start; }
   .cartas.baraja .cartas__contador { font-size: 2.6rem; min-width: auto; }
 
@@ -305,6 +309,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
         const c = (e.target as HTMLElement).closest<HTMLElement>('[data-carta]');
         if (!c || +c.dataset.i! !== orden[0]) return;
         sx = e.clientX; sy = e.clientY; dx = 0; t0 = performance.now(); arrastrando = true; eje = null; pid = e.pointerId;
+        // El dedo queda "enganchado" a la carta aunque salga de ella
+        try { c.setPointerCapture(e.pointerId); } catch {}
+        gsap.killTweensOf(c);
       };
       const move = (e: PointerEvent) => {
         if (!arrastrando || e.pointerId !== pid) return;
@@ -321,11 +328,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const up = (e: PointerEvent) => {
         if (!arrastrando || e.pointerId !== pid) return;
         arrastrando = false;
-        const v = Math.abs(dx) / Math.max(1, performance.now() - t0);
-        if (eje === 'x' && (Math.abs(dx) > 90 || v > 0.6)) siguiente(Math.sign(dx) || 1);
-        else if (eje === 'x') layout(0.6);
-        else if (!eje) abrirVisor(orden[0]); // toque sin arrastre
+        const dt = performance.now() - t0;
+        const v = Math.abs(dx) / Math.max(1, dt);
+        if (eje === 'x' && (Math.abs(dx) > 60 || v > 0.45)) siguiente(Math.sign(dx) || 1);
+        else if (eje) layout(0.5);
+        // Solo un toque corto y limpio abre el visor; un gesto cancelado o una pulsación larga, no
+        else if (e.type === 'pointerup' && dt < 450) abrirVisor(orden[0]);
+        else layout(0.5);
       };
+      const noMenu = (e: Event) => e.preventDefault(); // sin menú nativo «Compartir / Guardar imagen»
+      mesa.addEventListener('contextmenu', noMenu);
       mesa.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move, { passive: true });
       window.addEventListener('pointerup', up);
@@ -340,6 +352,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       bPrev.addEventListener('click', fPrev); bNext.addEventListener('click', fNext);
 
       return () => {
+        mesa.removeEventListener('contextmenu', noMenu);
         mesa.removeEventListener('pointerdown', down);
         window.removeEventListener('pointermove', move);
         window.removeEventListener('pointerup', up);

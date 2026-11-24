@@ -65,6 +65,9 @@ const jsonLd = {
     <meta name="twitter:card" content="summary_large_image" />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline>
+      if (matchMedia('(hover: none), (pointer: coarse)').matches || innerWidth < 768) document.documentElement.classList.add('lite');
+    </script>
     <slot name="head" />
   </head>
   <body class:list={['grano', bodyClass]}>

@@ -87,6 +87,9 @@
   .mono { filter: grayscale(1) contrast(1.08) brightness(0.92); }
 }
 
+/* En modo ligero no hay grano: una capa fija con fusión obliga a recomponer la pantalla en cada scroll */
+.lite .grano::after { display: none; }
+
 /* Grano global, estático (sin coste de animación) */
 .grano::after {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: .07; mix-blend-mode: overlay;

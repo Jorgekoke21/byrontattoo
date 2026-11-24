@@ -54,6 +54,7 @@ const filas = [
   .mani__ventana { position: relative; z-index: 2; width: clamp(15rem, 26vw, 26rem); aspect-ratio: 940 / 1600; overflow: hidden; margin: 0;
     box-shadow: 0 50px 120px rgb(0 0 0 / .8); }
   .mani__img { width: 100%; height: 118%; object-fit: cover; }
+  :global(.lite) .mani__img { height: 100%; }
 
   .mani__texto { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2rem 1.5rem; margin-top: clamp(3rem, 8vh, 6rem); }
   .mani__texto > h2 { grid-column: 1 / 4; padding-top: .55rem; }
@@ -72,7 +73,7 @@ const filas = [
 </style>
 
 <script>
-  import { gsap, reduceMotion } from '../scripts/motion';
+  import { gsap, reduceMotion, lite } from '../scripts/motion';
   document.querySelectorAll<HTMLElement>('[data-mani]').forEach((root) => {
     if (reduceMotion()) return;
     root.querySelectorAll<HTMLElement>('[data-fila]').forEach((fila, i) => {
@@ -80,9 +81,10 @@ const filas = [
       const pista = fila.firstElementChild as HTMLElement;
       gsap.fromTo(pista, { xPercent: dir < 0 ? -2 : -30 }, {
         xPercent: dir < 0 ? -30 : -2, ease: 'none',
-        scrollTrigger: { trigger: root, start: 'top bottom', end: 'bottom top', scrub: 0.4 + i * 0.15 },
+        scrollTrigger: { trigger: root, start: 'top bottom', end: 'bottom top', scrub: lite() ? true : 0.4 + i * 0.15 },
       });
     });
+    if (lite()) return;
     const ventana = root.querySelector<HTMLElement>('[data-ventana]')!;
     const img = root.querySelector<HTMLElement>('[data-ventana-img]')!;
     gsap.fromTo(ventana, { clipPath: 'inset(18% 12% 18% 12%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'power2.out',
